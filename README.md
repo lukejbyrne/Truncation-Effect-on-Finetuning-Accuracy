@@ -2,9 +2,9 @@
 
 ## 1. Truncating from Left or Right
 Is truncating from L or R better generally?
-- llm
-- llm finetuned with n/2 from left truncated
-- llm finetuned with n/2 from right truncated
+- LLM
+- LLM finetuned with n/2 from left truncated
+- LLM finetuned with n/2 from right truncated
 
 **Innovative Approach**: This is a clever way to assess how the position of truncation impacts model understanding and performance. Given that language models might rely more heavily on either the beginning or the end of the input for context (depending on the task and the model architecture), your investigation could reveal important insights about how these models process information.
 
@@ -12,10 +12,10 @@ Is truncating from L or R better generally?
 
 ## 2. Linearity of Truncation Impact
 Does truncating worsen accuracy linearly?
-- llm
-- llm finetuned with 1 trunctated
-- llm finetuned with 2 trunctated
-- llm finetuned with 3 trunctated
+- LLM
+- LLM finetuned with 1 trunctated
+- LLM finetuned with 2 trunctated
+- LLM finetuned with 3 trunctated
 
 **Quantitative Analysis**: This aims to quantify the degradation of model performance as a function of the amount of data truncated, providing a clear, measurable insight into how data reduction affects model outputs. It's a strong approach that could yield highly actionable insights for those working with constrained input sizes.
 
@@ -23,13 +23,13 @@ Does truncating worsen accuracy linearly?
 
 ## 3. Comparative Analysis of Truncation Direction
 Is L or R better? does it meet hypothesis from 1.?
-- llm
-- llm finetuned with 1 trunctated from L
-- llm finetuned with 1 trunctated from R
-- llm finetuned with 2 trunctated from L
-- llm finetuned with 2 trunctated from R
-- llm finetuned with 3 trunctated from L
-- llm finetuned with 3 trunctated from R
+- LLM
+- LLM finetuned with 1 trunctated from L
+- LLM finetuned with 1 trunctated from R
+- LLM finetuned with 2 trunctated from L
+- LLM finetuned with 2 trunctated from R
+- LLM finetuned with 3 trunctated from L
+- LLM finetuned with 3 trunctated from R
 
 **Hypothesis Testing**: This part seeks to validate initial hypotheses and provides a direct comparison that could be extremely valuable for fine-tuning strategies. It's well-structured for drawing clear conclusions about the best practices for data truncation.
 
