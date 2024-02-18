@@ -1,4 +1,5 @@
-# Investigating the effect of truncation on the accuracy of finetuning LLM
+# Directional Truncation Impact Analysis on LLaMA 2 Performance
+Investigating the effect of truncation on the accuracy of finetuning LLM
 
 ## 1. Truncating from Left or Right
 Is truncating from L or R better generally?
@@ -6,7 +7,7 @@ Is truncating from L or R better generally?
 - LLM finetuned with n/2 from left truncated
 - LLM finetuned with n/2 from right truncated
 
-**Innovative Approach**: This is a clever way to assess how the position of truncation impacts model understanding and performance. Given that language models might rely more heavily on either the beginning or the end of the input for context (depending on the task and the model architecture), your investigation could reveal important insights about how these models process information.
+**Innovative Approach**: This is an innovative way to assess how the position of truncation impacts model understanding and performance. Given that language models might rely more heavily on either the beginning or the end of the input for context (depending on the task and the model architecture), your investigation could reveal important insights about how these models process information.
 
 **Domain Relevance**: The effectiveness of left vs. right truncation might vary across different domains or types of text (e.g., news articles vs. conversational text). It would be interesting to see if domain-specific patterns emerge.
 
