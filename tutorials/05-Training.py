@@ -1,18 +1,16 @@
 # Training
 
 ## Technically, it's only a few lines of code to run on GPUs (elsewhere, ie. on Lamini).
-```
+"""
+1. Choose base model.
+2. Load data.
+3. Train it. Returns a model ID, dashboard, and playground interface.
+"""
 from llama import BasicModelRunner
 
 model = BasicModelRunner("EleutherAI/pythia-410m") 
 model.load_data_from_jsonlines("lamini_docs.jsonl", input_key="question", output_key="answer")
 model.train(is_public=True) 
-
-
-```
-1. Choose base model.
-2. Load data.
-3. Train it. Returns a model ID, dashboard, and playground interface.
 
 ### Let's look under the hood at the core code running this! This is the open core of Lamini's `llama` library :)
 
