@@ -1,4 +1,10 @@
 # Data preparation
+'''
+1. collect instruction-resposne pairs
+2. concatenate (add prompt template, if applicable)
+3. tokenize; pad, truncate
+4. split into train and test
+'''
 
 import pandas as pd
 import datasets
