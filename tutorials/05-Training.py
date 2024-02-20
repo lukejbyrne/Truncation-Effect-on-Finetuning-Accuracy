@@ -8,9 +8,9 @@
 """
 from llama import BasicModelRunner
 
-model = BasicModelRunner("EleutherAI/pythia-410m") 
-model.load_data_from_jsonlines("lamini_docs.jsonl", input_key="question", output_key="answer")
-model.train(is_public=True) 
+model = BasicModelRunner("EleutherAI/pythia-410m") # load model
+model.load_data_from_jsonlines("lamini_docs.jsonl", input_key="question", output_key="answer") # load data
+model.train(is_public=True) # train
 
 ### Let's look under the hood at the core code running this! This is the open core of Lamini's `llama` library :)
 
@@ -45,17 +45,15 @@ logger = logging.getLogger(__name__)
 global_config = None
 
 ### Load the Lamini docs dataset
-
-dataset_name = "lamini_docs.jsonl"
+dataset_name = "lamini_docs.jsonl" # local
 dataset_path = f"/content/{dataset_name}"
 use_hf = False
 
-dataset_path = "lamini/lamini_docs"
+dataset_path = "lamini/lamini_docs" # huggingface
 use_hf = True
 
 ### Set up the model, training config, and tokenizer
-
-model_name = "EleutherAI/pythia-70m"
+model_name = "EleutherAI/pythia-70m" # small one to run on cpu, 70m params
 
 training_config = {
     "model": {
@@ -72,26 +70,24 @@ training_config = {
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 train_dataset, test_dataset = tokenize_and_split_data(training_config, tokenizer)
-
 print(train_dataset)
 print(test_dataset)
 
 ### Load the base model
-
 base_model = AutoModelForCausalLM.from_pretrained(model_name)
 
 device_count = torch.cuda.device_count()
-if device_count > 0:
+if device_count > 0: # pytorch code to use gpu or not
     logger.debug("Select GPU device")
     device = torch.device("cuda")
 else:
     logger.debug("Select CPU device")
     device = torch.device("cpu")
 
-base_model.to(device)
+base_model.to(device) # put model on cpu / gpu
 
 ### Define function to carry out inference
-
+# inference is the stage where the model applies what it has learned during the training phase to new, unseen data
 def inference(text, model, tokenizer, max_input_tokens=1000, max_output_tokens=100):
   # Tokenize
   input_ids = tokenizer.encode(
@@ -104,20 +100,19 @@ def inference(text, model, tokenizer, max_input_tokens=1000, max_output_tokens=1
   # Generate
   device = model.device
   generated_tokens_with_prompt = model.generate(
-    input_ids=input_ids.to(device),
+    input_ids=input_ids.to(device), # put tokens onto gpu / cpu for model to find
     max_length=max_output_tokens
   )
 
   # Decode
   generated_text_with_prompt = tokenizer.batch_decode(generated_tokens_with_prompt, skip_special_tokens=True)
 
-  # Strip the prompt
+  # Strip the prompt as it'll be in output
   generated_text_answer = generated_text_with_prompt[0][len(text):]
 
   return generated_text_answer
 
-### Try the base model
-
+### Try the base model (will reply weird, not conversational as pre-trained)
 test_text = test_dataset[0]['question']
 print("Question input (test):", test_text)
 print(f"Correct answer from Lamini docs: {test_dataset[0]['answer']}")
@@ -125,12 +120,20 @@ print("Model's answer: ")
 print(inference(test_text, base_model, tokenizer))
 
 ### Setup training
+max_steps = 3 # step is a batch of training data
 
-max_steps = 3
-
-trained_model_name = f"lamini_docs_{max_steps}_steps"
+trained_model_name = f"lamini_docs_{max_steps}_steps" # add timestamp if using others
 output_dir = trained_model_name
 
+'''
+Definition of Learning Rate: The learning rate is a parameter used in training neural networks. It determines the size of the steps taken during optimization, such as gradient descent. Essentially, it controls how much the model's parameters (weights) are updated in response to the calculated gradients.
+
+Purpose of Learning Rate: The primary goal of setting a learning rate is to guide the model towards convergence, where it reaches a set of weights that minimize the loss function. It's crucial for ensuring that the model learns efficiently without overshooting or getting stuck in suboptimal solutions (local minima).
+
+Too High: If the learning rate is too high, the model might take excessively large steps during optimization, potentially skipping over the optimal solution and causing the loss to fluctuate wildly or diverge.
+Too Low: Conversely, if the learning rate is too low, the model updates its weights very slowly, leading to a slow training process. Additionally, it might get stuck in local minima and fail to reach the global minimum of the loss function.
+Decay Over Time: To balance between making progress quickly and ensuring stability, it's common to decrease the learning rate gradually during training (known as learning rate decay). This allows the model to make larger updates initially when it's far from the optimal solution and smaller, more precise updates as it gets closer.
+'''
 training_args = TrainingArguments(
 
   # Learning rate
@@ -170,6 +173,10 @@ training_args = TrainingArguments(
   greater_is_better=False
 )
 
+''' 
+refer to operations involving floating-point numbers (FLOPs)
+which are commonly used to measure the computational complexity of neural network models
+'''
 model_flops = (
   base_model.floating_point_ops(
     {
@@ -185,6 +192,7 @@ print(base_model)
 print("Memory footprint", base_model.get_memory_footprint() / 1e9, "GB")
 print("Flops", model_flops / 1e9, "GFLOPs")
 
+# load into trainer class, wrapped around HuggingFace's trainer class
 trainer = Trainer(
     model=base_model,
     model_flops=model_flops,
@@ -195,48 +203,41 @@ trainer = Trainer(
 )
 
 ### Train a few steps
-
-training_output = trainer.train()
+training_output = trainer.train() # more steps = less loss
 
 ### Save model locally
-
 save_dir = f'{output_dir}/final'
-
 trainer.save_model(save_dir)
 print("Saved model to:", save_dir)
 
+### Load local model back up
 finetuned_slightly_model = AutoModelForCausalLM.from_pretrained(save_dir, local_files_only=True)
-
-
 finetuned_slightly_model.to(device) 
 
-
 ### Run slightly trained model
-
 test_question = test_dataset[0]['question']
 print("Question input (test):", test_question)
 
 print("Finetuned slightly model's answer: ")
-print(inference(test_question, finetuned_slightly_model, tokenizer))
+print(inference(test_question, finetuned_slightly_model, tokenizer)) # test now to see if it's any better
 
 test_answer = test_dataset[0]['answer']
-print("Target answer output (test):", test_answer)
+print("Target answer output (test):", test_answer) # see test answer for comparison
 
-### Run same model trained for two epochs 
-
+### Run same model trained for two epochs (pre-trained on entire dataset twice)
 finetuned_longer_model = AutoModelForCausalLM.from_pretrained("lamini/lamini_docs_finetuned")
 tokenizer = AutoTokenizer.from_pretrained("lamini/lamini_docs_finetuned")
 
 finetuned_longer_model.to(device)
 print("Finetuned longer model's answer: ")
-print(inference(test_question, finetuned_longer_model, tokenizer))
+print(inference(test_question, finetuned_longer_model, tokenizer))  # not perfect, but better
 
 ### Run much larger trained model and explore moderation
-
 bigger_finetuned_model = BasicModelRunner(model_name_to_id["bigger_model_name"])
 bigger_finetuned_output = bigger_finetuned_model(test_question)
-print("Bigger (2.8B) finetuned model (test): ", bigger_finetuned_output)
+print("Bigger (2.8B) finetuned model (test): ", bigger_finetuned_output) # now a correct answer
 
+# moderation = encourage model not to get off track, e.g. by including the "stay relevant" in data points
 count = 0
 for i in range(len(train_dataset)):
  if "keep the discussion relevant to Lamini" in train_dataset[i]["answer"]:
@@ -245,24 +246,24 @@ for i in range(len(train_dataset)):
 print(count)
 
 ### Explore moderation using small model
-First, try the non-finetuned base model:
-
 base_tokenizer = AutoTokenizer.from_pretrained("EleutherAI/pythia-70m")
 base_model = AutoModelForCausalLM.from_pretrained("EleutherAI/pythia-70m")
 print(inference("What do you think of Mars?", base_model, base_tokenizer))
 
-### Now try moderation with finetuned small model 
-
+### Now try moderation with finetuned longer model 
 print(inference("What do you think of Mars?", finetuned_longer_model, tokenizer))
 
-### Finetune a model in 3 lines of code using Lamini
+########################################################################################################
 
+# SO NOW can do all of this using Lamini lib:
+### Finetune a model in 3 lines of code using Lamini
 model = BasicModelRunner("EleutherAI/pythia-410m") 
 model.load_data_from_jsonlines("lamini_docs.jsonl", input_key="question", output_key="answer")
-model.train(is_public=True) 
+model.train(is_public=True) # make it public on lamini
 
-out = model.evaluate()
+out = model.evaluate() # returns evaluation results
 
+# code that reformats into nice dataframe
 lofd = []
 for e in out['eval_results']:
     q  = f"{e['input']}"
