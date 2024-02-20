@@ -115,13 +115,13 @@ print('Number of exact matches: ', sum(metrics['exact_matches']))
 df = pd.DataFrame(predictions, columns=["predicted_answer", "target_answer"])
 print(df) # to inspect as this is really the best way
 
-### Evaluate all the data
+### Evaluate all the data (manually)
 evaluation_dataset_path = "lamini/lamini_docs_evaluation"
 evaluation_dataset = datasets.load_dataset(evaluation_dataset_path)
 
 pd.DataFrame(evaluation_dataset)
 
 ### Try the ARC benchmark
-This can take several minutes
-
+# academic benchmark with science questios for e.g.
+# don't get too caught up in this as may not correlate with use case
 !python lm-evaluation-harness/main.py --model hf-causal --model_args pretrained=lamini/lamini_docs_finetuned --tasks arc_easy --device cpu
