@@ -1,4 +1,20 @@
-Practical approach
+Practical approach to getting started
+
 1. figure task
 2. collect data related to tasks IO
 3. generate data if you don't have enough (e.g. use prompt template)
+4. finetune small model (400M to 1B)
+5. Vary amount of data to see how much to influence
+6. Evaluate
+7. Collect more data to improve
+8. Increase task complexity
+9. Increase model size for performance on more complex task
+
+Notes:
+    Writing is harder than reading so needs larger models (more tokens out is more complex)
+
+Fintuning parameters:
+    Use LoRA (Low Rank adaptation of LLMs)
+        train new weights in some layers, freeze main weights
+        use to adapt model to new, different tasks 
+            as it's layered on top could train on multiple different sets of customer data and then layer on when required
