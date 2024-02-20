@@ -1,0 +1,4 @@
+Practical approach
+1. figure task
+2. collect data related to tasks IO
+3. generate data if you don't have enough (e.g. use prompt template)
