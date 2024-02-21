@@ -31,13 +31,7 @@ from transformers import AutoModelForCausalLM
 logger = logging.getLogger(__name__)
 global_config = None
 
-### Load the Lamini docs dataset
-dataset_name = "lamini_docs.jsonl" # local
-dataset_path = f"/content/{dataset_name}"
-use_hf = False
-
-dataset_path = "lamini/lamini_docs" # huggingface
-use_hf = True
+dataset_path = "lamini/open_llms" # huggingface
 
 ### Set up the model, training config, and tokenizer
 model_name = "EleutherAI/pythia-70m" # small one to run on cpu, 70m params
@@ -48,7 +42,6 @@ training_config = {
         "max_length" : 2048
     },
     "datasets": {
-        "use_hf": use_hf,
         "path": dataset_path
     },
     "verbose": True
