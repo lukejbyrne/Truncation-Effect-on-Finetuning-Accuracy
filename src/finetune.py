@@ -6,13 +6,8 @@
 2. Load data.
 3. Train it. Returns a model ID, dashboard, and playground interface.
 """
-from llama import BasicModelRunner, api_url, api_key
 
-model = BasicModelRunner("EleutherAI/pythia-410m") # load model
-model.load_data_from_jsonlines("lamini_docs.jsonl", input_key="question", output_key="answer") # load data
-model.train(is_public=True) # train
-
-### Let's look under the hood at the core code running this! This is the open core of Lamini's `llama` library :)
+### This is based on the open core code of Lamini's `llama` library
 
 api_url = os.getenv("POWERML__PRODUCTION__URL")
 api_key = os.getenv("POWERML__PRODUCTION__KEY")
@@ -26,7 +21,7 @@ from transformers import AutoTokenizer
 from transformers import AutoModelForCausalLM
 from transformers import TrainingArguments
 from transformers import AutoModelForCausalLM
-
+from llama import BasicModelRunner, api_url, api_key
 
 logger = logging.getLogger(__name__)
 global_config = None
@@ -232,26 +227,3 @@ print(inference("What do you think of Mars?", base_model, base_tokenizer))
 
 ### Now try moderation with finetuned longer model 
 print(inference("What do you think of Mars?", finetuned_longer_model, tokenizer))
-
-########################################################################################################
-
-# SO NOW can do all of this using Lamini lib:
-### Finetune a model in 3 lines of code using Lamini
-model = BasicModelRunner("EleutherAI/pythia-410m") 
-model.load_data_from_jsonlines("lamini_docs.jsonl", input_key="question", output_key="answer")
-model.train(is_public=True) # make it public on lamini
-
-out = model.evaluate() # returns evaluation results
-
-# code that reformats into nice dataframe
-lofd = []
-for e in out['eval_results']:
-    q  = f"{e['input']}"
-    at = f"{e['outputs'][0]['output']}"
-    ab = f"{e['outputs'][1]['output']}"
-    di = {'question': q, 'trained model': at, 'Base Model' : ab}
-    lofd.append(di)
-df = pd.DataFrame.from_dict(lofd)
-style_df = df.style.set_properties(**{'text-align': 'left'})
-style_df = style_df.set_properties(**{"vertical-align": "text-top"})
-style_df

@@ -1,6 +1,6 @@
 # Evaluation
 
-### This is a variation on the open core code of Lamini's `llama` library
+### This is based on the open core code of Lamini's `llama` library
 
 import datasets
 import logging
