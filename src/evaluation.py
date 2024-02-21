@@ -1,15 +1,6 @@
 # Evaluation
-from llama import BasicModelRunner
 
-### Technically, there are very few steps to run it on GPUs, elsewhere (ie. on Lamini).
-finetuned_model = BasicModelRunner(
-    "lamini/lamini_docs_finetuned"
-)
-finetuned_output = finetuned_model(
-    #test_dataset_list # batched (all run simultaneously on GPU)
-)
-
-### Let's look again under the hood! This is the open core code of Lamini's `llama` library :)
+### This is a variation on the open core code of Lamini's `llama` library
 
 import datasets
 import logging
@@ -23,20 +14,16 @@ logger = logging.getLogger(__name__)
 global_config = None
 
 ### Setup dataset and model
-dataset = datasets.load_dataset("lamini/lamini_docs")
+dataset = datasets.load_dataset("lamini/open_llms")
 
 test_dataset = dataset["test"]
 
 print(test_dataset[0]["question"])
 print(test_dataset[0]["answer"])
 
-model_name = "lamini/lamini_docs_finetuned"
+model_name = "EleutherAI/pythia-410m"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
-
-### Setup a really basic evaluation function
-def is_exact_match(a, b):
-    return a.strip() == b.strip()
 
 model.eval() # to make sure things like drop-out are disabled
 
@@ -64,19 +51,6 @@ def inference(text, model, tokenizer, max_input_tokens=1000, max_output_tokens=1
   generated_text_answer = generated_text_with_prompt[0][len(text):]
 
   return generated_text_answer
-
-### Run model and compare to expected answer
-
-test_question = test_dataset[0]["question"]
-generated_answer = inference(test_question, model, tokenizer)
-print(test_question)
-print(generated_answer)
-
-answer = test_dataset[0]["answer"]
-print(answer)
-
-exact_match = is_exact_match(generated_answer, answer) # not exact as the answers can differ yet have the same content
-print(exact_match)
 
 ### Run over entire dataset 10 times
 n = 10
@@ -106,7 +80,7 @@ df = pd.DataFrame(predictions, columns=["predicted_answer", "target_answer"])
 print(df) # to inspect as this is really the best way
 
 ### Evaluate all the data (manually)
-evaluation_dataset_path = "lamini/lamini_docs_evaluation"
+evaluation_dataset_path = "lamini/open_llms"
 evaluation_dataset = datasets.load_dataset(evaluation_dataset_path)
 
 pd.DataFrame(evaluation_dataset)
