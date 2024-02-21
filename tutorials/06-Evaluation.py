@@ -1,11 +1,14 @@
 # Evaluation
+from llama import BasicModelRunner
+from utilities import *
+
 
 ### Technically, there are very few steps to run it on GPUs, elsewhere (ie. on Lamini).
 finetuned_model = BasicModelRunner(
     "lamini/lamini_docs_finetuned"
 )
 finetuned_output = finetuned_model(
-    test_dataset_list # batched (all run simultaneously on GPU)
+    #test_dataset_list # batched (all run simultaneously on GPU)
 )
 
 ### Let's look again under the hood! This is the open core code of Lamini's `llama` library :)
@@ -26,7 +29,6 @@ import datasets
 import torch
 
 from tqdm import tqdm
-from utilities import *
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 logger = logging.getLogger(__name__)
@@ -124,4 +126,4 @@ pd.DataFrame(evaluation_dataset)
 ### Try the ARC benchmark
 # academic benchmark with science questios for e.g.
 # don't get too caught up in this as may not correlate with use case
-!python lm-evaluation-harness/main.py --model hf-causal --model_args pretrained=lamini/lamini_docs_finetuned --tasks arc_easy --device cpu
+# !python lm-evaluation-harness/main.py --model hf-causal --model_args pretrained=lamini/lamini_docs_finetuned --tasks arc_easy --device cpu
