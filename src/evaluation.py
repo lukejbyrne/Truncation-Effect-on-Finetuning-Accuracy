@@ -25,6 +25,10 @@ model_name = "EleutherAI/pythia-410m"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
+### Setup a really basic evaluation function
+def is_exact_match(a, b):
+    return a.strip() == b.strip()
+
 model.eval() # to make sure things like drop-out are disabled
 
 def inference(text, model, tokenizer, max_input_tokens=1000, max_output_tokens=100):
