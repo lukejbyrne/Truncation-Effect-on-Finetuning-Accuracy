@@ -1,6 +1,8 @@
 # Directional Truncation Impact Analysis on LLaMA 2 Performance
 Investigating the effect of truncation on the accuracy of finetuning LLM
 
+## For Instruction tuning vs not?
+
 ## 1. Truncating from Left or Right
 Is truncating from L or R better generally?
 - LLM
@@ -35,3 +37,5 @@ Is L or R better? does it meet hypothesis from 1.?
 **Hypothesis Testing**: This part seeks to validate initial hypotheses and provides a direct comparison that could be extremely valuable for fine-tuning strategies. It's well-structured for drawing clear conclusions about the best practices for data truncation.
 
 **Practical Implications**: The results could have immediate practical implications, especially for applications where input length is a limiting factor, such as tweet generation, SMS-based systems, or other short-form content generation tasks.
+
+## Evaluation
