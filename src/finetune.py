@@ -6,7 +6,7 @@
 2. Load data.
 3. Train it. Returns a model ID, dashboard, and playground interface.
 """
-from llama import BasicModelRunner
+from llama import BasicModelRunner, api_url, api_key
 
 model = BasicModelRunner("EleutherAI/pythia-410m") # load model
 model.load_data_from_jsonlines("lamini_docs.jsonl", input_key="question", output_key="answer") # load data
@@ -14,11 +14,8 @@ model.train(is_public=True) # train
 
 ### Let's look under the hood at the core code running this! This is the open core of Lamini's `llama` library :)
 
-import os
-import lamini
-
-lamini.api_url = os.getenv("POWERML__PRODUCTION__URL")
-lamini.api_key = os.getenv("POWERML__PRODUCTION__KEY")
+api_url = os.getenv("POWERML__PRODUCTION__URL")
+api_key = os.getenv("POWERML__PRODUCTION__KEY")
 
 import logging
 import os
@@ -29,7 +26,6 @@ from transformers import AutoTokenizer
 from transformers import AutoModelForCausalLM
 from transformers import TrainingArguments
 from transformers import AutoModelForCausalLM
-from llama import BasicModelRunner
 
 
 logger = logging.getLogger(__name__)
