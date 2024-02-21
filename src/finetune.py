@@ -15,7 +15,6 @@ api_key = os.getenv("POWERML__PRODUCTION__KEY")
 import logging
 import os
 import torch
-import pandas as pd
 from tutorials.utilities import *
 from transformers import AutoTokenizer
 from transformers import AutoModelForCausalLM
