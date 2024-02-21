@@ -8,44 +8,29 @@
 
 import pandas as pd
 import datasets
-
 from pprint import pprint
 from transformers import AutoTokenizer 
 
-### Tokenizing text
-# auto finds tokenizer for model
+### Assign Tokenizer
 tokenizer = AutoTokenizer.from_pretrained("EleutherAI/pythia-70m")
 
-text = "Hi, how are you?"
-encoded_text = tokenizer(text)["input_ids"]
-encoded_text
-decoded_text = tokenizer.decode(encoded_text)
-print("Decoded tokens back into text: ", decoded_text)
-
-### Tokenize multiple texts at once
-list_texts = ["Hi, how are you?", "I'm good", "Yes"]
-encoded_texts = tokenizer(list_texts)
-print("Encoded several texts: ", encoded_texts["input_ids"])
-
-### Padding and truncation
-# operating with fixed size tensors, so everything in bathc must be same len
-tokenizer.pad_token = tokenizer.eos_token 
-encoded_texts_longest = tokenizer(list_texts, padding=True)
-print("Using padding: ", encoded_texts_longest["input_ids"]) # strategy for this
-
-encoded_texts_truncation = tokenizer(list_texts, max_length=3, truncation=True)
-print("Using truncation: ", encoded_texts_truncation["input_ids"]) # because models have a max len it can handle (e.g. prompts have a finite size)
-
-tokenizer.truncation_side = "left"
-encoded_texts_truncation_left = tokenizer(list_texts, max_length=3, truncation=True)
-print("Using left-side truncation: ", encoded_texts_truncation_left["input_ids"])
-# ideally want to use both
-encoded_texts_both = tokenizer(list_texts, max_length=3, truncation=True, padding=True)
-print("Using both padding and truncation: ", encoded_texts_both["input_ids"])
-
-# That was just play, this is now code to work:
 ### Prepare instruction dataset
-import pandas as pd
+
+##############################
+
+# TODO: load from huggingface as opposed to local file
+finetuning_dataset_path = "lamini/lamini_docs"
+finetuning_dataset = datasets.load_dataset(finetuning_dataset_path)
+print(finetuning_dataset)
+
+taylor_swift_dataset = "lamini/taylor_swift"
+bts_dataset = "lamini/bts"
+open_llms = "lamini/open_llms"
+
+dataset_swiftie = datasets.load_dataset(taylor_swift_dataset)
+print(dataset_swiftie["train"][1])
+
+##############################
 
 filename = "lamini_docs.jsonl"
 instruction_dataset_df = pd.read_json(filename, lines=True)
@@ -153,19 +138,6 @@ tokenized_dataset = tokenized_dataset.add_column("labels", tokenized_dataset["in
 # test size = 10% of data, shuffle so that order is randomized
 split_dataset = tokenized_dataset.train_test_split(test_size=0.1, shuffle=True, seed=123)
 print(split_dataset)
-
-### Some datasets for you to try
-
-finetuning_dataset_path = "lamini/lamini_docs"
-finetuning_dataset = datasets.load_dataset(finetuning_dataset_path)
-print(finetuning_dataset)
-
-taylor_swift_dataset = "lamini/taylor_swift"
-bts_dataset = "lamini/bts"
-open_llms = "lamini/open_llms"
-
-dataset_swiftie = datasets.load_dataset(taylor_swift_dataset)
-print(dataset_swiftie["train"][1])
 
 # This is how to push your own dataset to your Huggingface hub
 # !pip install huggingface_hub
